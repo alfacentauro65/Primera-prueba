@@ -87,7 +87,7 @@ String strMejorWiFi()
     {
       if (WiFi.SSID(i).startsWith("HALO_2003") && WiFi.RSSI(i) > maxRSSI)
       {
-        maxSSID = WiFi.SSID(i);nnjhkjhk
+        maxSSID = WiFi.SSID(i);
         maxRSSI = WiFi.RSSI(i);
         EscribeLog("Wifi encontrada: " + maxSSID + ": " + maxRSSI);
         delay(10);
@@ -99,13 +99,13 @@ String strMejorWiFi()
   return (maxSSID);
 }
 
-void reconnect(char *ssid, char *password)
+void reconnect()
 {
   EscribeLog("-------->Entering into reconnect()");
 
   unsigned long timeOut = millis();
-  char *ssid = "";
   String maxSSID = "";
+  char *ssid = "";
   while (maxSSID == "")
   {
     maxSSID = strMejorWiFi();
