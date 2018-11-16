@@ -87,7 +87,7 @@ String strMejorWiFi()
     {
       if (WiFi.SSID(i).startsWith("HALO_2003") && WiFi.RSSI(i) > maxRSSI)
       {
-        maxSSID = WiFi.SSID(i);nn
+        maxSSID = WiFi.SSID(i);nnjhkjhk
         maxRSSI = WiFi.RSSI(i);
         EscribeLog("Wifi encontrada: " + maxSSID + ": " + maxRSSI);
         delay(10);
