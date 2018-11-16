@@ -60,7 +60,7 @@ String strMejorWiFi()
 
   int maxRSSI = -100;
   String maxSSID = "";
-  EscribeLog("Entering into strMejorWiFi()");
+  EscribeLog("-------->Entering into strMejorWiFi()");
 
   // Set WiFi to station mode and disconnect from an AP if it was previously connected
   WiFi.mode(WIFI_STA);
@@ -87,7 +87,7 @@ String strMejorWiFi()
     {
       if (WiFi.SSID(i).startsWith("HALO_2003") && WiFi.RSSI(i) > maxRSSI)
       {
-        maxSSID = WiFi.SSID(i);
+        maxSSID = WiFi.SSID(i);nn
         maxRSSI = WiFi.RSSI(i);
         EscribeLog("Wifi encontrada: " + maxSSID + ": " + maxRSSI);
         delay(10);
@@ -95,13 +95,13 @@ String strMejorWiFi()
     }
   }
   EscribeLog("Wifi elegida: " + maxSSID + ": " + maxRSSI);
-  EscribeLog("Comminng out from strMejorWiFi()");
+  EscribeLog("<--------Comminng out from strMejorWiFi()");
   return (maxSSID);
 }
 
-void reconnect()
+void reconnect(char *ssid, char *password)
 {
-  EscribeLog("Entering into reconnect()");
+  EscribeLog("-------->Entering into reconnect()");
 
   unsigned long timeOut = millis();
   char *ssid = "";
@@ -126,13 +126,15 @@ void reconnect()
   Serial.println(WiFi.localIP());
   EscribeLog("WiFi connected: " + maxSSID + ". IP Address: " + WiFi.localIP());
   EscribeLog(maxSSID);
-  EscribeLog("Comminng out from reconnect()");
+   EscribeLog("<--------Comminng out from reconnect()");
 }
 
 void getHttps(int atributo, double valor)
 {
   /* Hace la llamada HTTPS */
   // Use WiFiClientSecure class to create TLS connection
+  EscribeLog("-------->Entering into getHttps()");
+
   WiFiClientSecure client;
   String myURL = URL + "value" + atributo + "=" + valor;
   Serial.print("connecting to ");
@@ -176,6 +178,7 @@ void getHttps(int atributo, double valor)
   Serial.println("==========");
   Serial.println("closing connection");
   client.stop();
+  EscribeLog("<--------Comminng out from getHttps()");
 }
 
 void SetMuxChannel(byte channel)
