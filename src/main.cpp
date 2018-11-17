@@ -75,22 +75,7 @@ const int httpsPort = 443;
 
 void EscribeLog(String txt)
 {
-
-  String sTime = "0000000000" + String(millis());
-  Serial.println(String(millis()));
-  Serial.println(sTime);
-  String sTimeFormated = "";
-  int iFrom = String(sTime).length();
-  int iTo = iFrom - 10;
-  for (int i = iFrom; i >= iTo; i--)
-  {
-    if (i == 2 || i == 5 || i == 8)
-    {
-      sTimeFormated = "." + sTimeFormated;
-    }
-    sTimeFormated = String(sTime).charAt(i) + sTimeFormated;
-  }
-  Serial.println(sTimeFormated);
+  Serial.print(String(millis()));
   Serial.print(": -> ");
   txt.replace("\n", "\n               ");
   Serial.println(txt);
@@ -124,8 +109,7 @@ String strMejorWiFi()
   }
   else
   {
-    Serial.print(n);
-    Serial.println("Networks found");
+    EscribeLog(String(n) + " nNetworks found");
     for (int i = 0; i < n; ++i)
     {
       if (WiFi.SSID(i).startsWith(String(ssid)) && WiFi.RSSI(i) > maxRSSI)
