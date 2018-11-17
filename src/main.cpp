@@ -39,6 +39,11 @@ const int muxS3 = DP5;
 DHT dht(DP3, DHT22);
 const int PIRPin = DP4;
 
+//Ajustes para fotoresistencia LDR (GL55)
+const long A = 1000; //Resistencia en oscuridad en KΩ
+const int B = 15;    //Resistencia a la luz (10 Lux) en KΩ
+const int Rc = 10;   //Resistencia calibracion en KΩ
+
 //Ajustes para MQ-135
 const int RL_VALUE = 20; // Resistencia RL del modulo en Kilo ohms
 const int R0 = 40;       // Resistencia R0 del sensor en Kilo ohms
@@ -73,11 +78,18 @@ const char *ssid = "HALO_2003";
 const char *password = "Mi_Abuelito_Tenia_Un_Reloj_De_Pared";
 const int httpsPort = 443;
 
+//Tiempo entre envios a Zipato
+unsigned long timeBetweenSends = 0;
+unsigned long miliSegsBetweenSends = 30000;
+
 void EscribeLog(String txt)
 {
-  Serial.print(String(millis()));
+  unsigned long momento = millis();
+  String millis = String("00" + String(momento % 1000));
+  millis = millis.substring(millis.length() - 3, millis.length());
+  Serial.print(String(((int)momento / 1000)) + "." + millis);
   Serial.print(": -> ");
-  txt.replace("\n", "\n               ");
+  txt.replace("\n", "\n           ");
   Serial.println(txt);
 }
 
@@ -189,7 +201,9 @@ void getHttps(int atributo, double valor)
                "Connection: close\r\n\r\n");
 
   EscribeLog("Request sent ...");
-  //Serial.println(client.readString());
+
+  // Esperamos por la respuesta si la queremos para algo
+  /*
   String response = "";
   while (client.connected())
   {
@@ -211,6 +225,7 @@ void getHttps(int atributo, double valor)
   }
 
   EscribeLog("Response: " + response);
+*/
   client.stop();
   EscribeLog("<--------Comminng out from getHttps() in: " + String(millis() - duration) + " milisegundos");
 }
@@ -240,7 +255,7 @@ void setup()
 
 void loop()
 {
-
+  //Control de la conectividad
   while (WiFi.status() != WL_CONNECTED)
   {
     reconnect();
@@ -253,6 +268,14 @@ void loop()
     }
     delay(100);
   };
+
+  //Retardo entre envios
+  while (millis() < timeBetweenSends + miliSegsBetweenSends)
+  {
+    delay(100);
+  }
+  timeBetweenSends = millis();
+
   //Lectura de Humedad
   float humedad = dht.readHumidity();
 
@@ -277,7 +300,8 @@ void loop()
 
   //Lectura de Luminosidad
   SetMuxChannel(7);
-  int luminosidad = analogRead(muxSIG);
+  int V = analogRead(muxSIG);
+  int luminosidad = ((long)V * A * 10) / ((long)B * Rc * (1024 - V)); //usar si LDR entre A0 y Vcc (como en el esquema anterior)
 
   //Lectura de Potencia
   SetMuxChannel(15);
@@ -294,33 +318,30 @@ void loop()
   getHttps(6, luminosidad);
   getHttps(7, potencia);
   getHttps(8, concentration);
-  /*
-  getHttps(1, 36.5 + random(1, 3));
-  getHttps(2, 75.40 + random(1, 3));
-  getHttps(5, 1);
-  getHttps(6, 28 + random(1, 3));
-  getHttps(7, 185 + random(1, 3));
-  getHttps(8, 875 + random(1, 3));
-*/
-  Serial.print("humedad: ");
-  Serial.print(humedad);
-  Serial.print(", temperatura: ");
-  Serial.print(temperatura);
-  Serial.print(", presencia: ");
+
+  EscribeLog("1 Temperatura: " + String(temperatura));
+  EscribeLog("2 Humedad: " + String(humedad));
+  //EscribeLog("3 Lluvia: " + String(humedad));
+  //EscribeLog("4 Tension Bateria: " + String(humedad));
   if (presencia == HIGH)
   {
-    Serial.print("Sí");
+    EscribeLog("5 Presencia: Si");
   }
   else
   {
-    Serial.print("No");
+    EscribeLog("5 Presencia: No");
   }
-  Serial.print(", concentration: ");
-  Serial.println(concentration);
-  Serial.print(", luminosidad: ");
-  Serial.print(luminosidad);
-  Serial.print(", potencia: ");
-  Serial.println(potencia);
+  EscribeLog("6 Luminosidad: " + String(luminosidad));
+  EscribeLog("7 Potencia: " + String(potencia));
+  EscribeLog("8 PPM CO2: " + String(concentration));
+  //EscribeLog("9 Nada: " + String(humedad));
+  //EscribeLog("10 Nada: " + String(humedad));
+  //EscribeLog("11 Nada: " + String(humedad));
+  //EscribeLog("12 Nada: " + String(humedad));
+  //EscribeLog("13 Nada: " + String(humedad));
+  //EscribeLog("14 Nada: " + String(humedad));
+  //EscribeLog("15 Nada: " + String(humedad));
+  //EscribeLog("16 Arranque: 0" + String(humedad));
 }
 
 // Obtener resistencia a partir de la lectura analogica
